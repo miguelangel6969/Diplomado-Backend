@@ -21,7 +21,6 @@ from src.routes import *
 from src.settings.settings import Settings
 
 app = Flask(__name__)
-crontab = None
 # configuracion de app
 app.config.from_object(Settings())
 
@@ -87,6 +86,7 @@ def get_additional_data_user():
     claims = get_jwt_claims()
     return jsonify(claims), 200
 
+app.register_blueprint(routes)
 
 if __name__ == '__main__':
     app.logger.info('configuracion incial=> {}'.format(app.config))
