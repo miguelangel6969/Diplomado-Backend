@@ -1,0 +1,25 @@
+# Ignorar archivos y directorios generados automáticamente
+__pycache__
+*.pyc
+
+# Ignorar directorios específicos
+venv/
+.env/
+dist/
+build/
+*.egg
+*.egg-info/
+_mailinglist
+.tox/
+.cache/
+.pytest_cache/
+.idea/
+docs/_build/
+.vscode
+
+src/settings/.env
+
+# Ignorar archivos y directorios de desarrollo local
+*.log
+*.sqlite3
+.DS_Store
