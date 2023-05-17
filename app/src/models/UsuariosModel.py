@@ -12,6 +12,7 @@ class UsuariosModel(db.Model, ModelParent):
     nombres = db.Column(db.String)
     apellidos = db.Column(db.String)
     cedula = db.Column(db.String)
+    user_key = db.Column(db.String)
 
     @classmethod
     def find_by_user(cls, _user):
