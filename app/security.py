@@ -6,9 +6,9 @@ import hashlib
 from src.models.UsuariosModel import UsuariosModel
 
 
-def authenticate_user(user: str, password: str):
+def authenticate_user(email: str, password: str):
     try:
-        user = UsuariosModel.find_by_user(user)
+        user = UsuariosModel.find_by_email(email)
         passw = generar_hash_sha256(password)
         if safe_str_cmp(user.password, passw):
             return user
@@ -18,7 +18,7 @@ def authenticate_user(user: str, password: str):
         return None
 
 def get_id_user(email: str):
-    user = UsuariosModel.find_by_user(email)
+    user = UsuariosModel.find_by_email(email)
     if user is None:
         return None
     return user.id

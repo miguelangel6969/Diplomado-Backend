@@ -52,14 +52,14 @@ def hello_world():
 def login():
     user_json = request.get_json()
     try:
-        user = authenticate_user(user_json['user'], user_json['password'])
-        usuario = user.usuario
-        access_token = create_access_token(usuario)
-        refresh_token = create_refresh_token(user.usuario)
+        user = authenticate_user(user_json['email'], user_json['password'])
+        email = user.email
+        access_token = create_access_token(email)
+        refresh_token = create_refresh_token(user.email)
         return jsonify({"access_token": access_token, "refresh_token": refresh_token})
     except Exception as e:
         ##app.logger.error(e)
-        return jsonify({"message": "no exist user"}), 404
+        return jsonify({"message": "El usuario no existe."}), 404
 
 
 @jwt.user_claims_loader
@@ -93,11 +93,4 @@ if __name__ == '__main__':
     db.init_app(app=app)
     ma.init_app(app=app)
     docs.init_app(app=app)
-    #docs.init_app(app=app)
-    # crontab.init_app(app=app)
-    #
-    # thread = threading.Thread(name='daemon_notifications',
-    #                           target=daemon_notifications, daemon=True, args=[app])
-    # thread.start()
-
     app.run(port=app.config.get('API_PORT'), debug=app.config.get('API_DEBUG'))

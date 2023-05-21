@@ -18,24 +18,32 @@ def getUsuarios(id: int):
     schema = UsuariosSchema()
     return jsonify(schema.dump(UsuariosModel.find_by_id(id)))
 
-
-@routes.route('/usuarios/<int:id>', methods=['DELETE'])
-def deleteUsuarios(id: int):
-    object = UsuariosModel.find_by_id(id)
-    object.delete()
-    return jsonify({'message': 'deleted'}), 200
-
-
 @routes.route('/usuarios', methods=['POST'])
 @convert_input_to(UsuariosModel)
 def updateUsuarios(usuarios):
-    schema = UsuariosSchema()
-    key = generar_hash_sha256(usuarios.email+""+usuarios.cedula)
-    usuarios.user_key=key
-    passw = generar_hash_sha256(usuarios.password)
-    usuarios.password = passw
-    usuarios.save()
-    return jsonify(schema.dump(usuarios))
+    try:
+        email = UsuariosModel.find_by_email(usuarios.email)
+        indentification = UsuariosModel.find_by_cedula(usuarios.cedula)
+        if email and indentification:
+            return jsonify({"message":"Correo y cedula existentes"}), 400
+        elif email:
+            return jsonify({"message":"Correo existente"}), 400
+        elif indentification:
+            return jsonify({"message":"Cedula existente"}), 400
+        else:
+            schema = UsuariosSchema()
+            usuarios.email = usuarios.email.strip()
+            usuarios.cedula = usuarios.cedula.strip()
+            key = generar_hash_sha256(usuarios.email+""+usuarios.cedula)
+            usuarios.user_key=key
+            usuarios.saldo = 0
+            passw = generar_hash_sha256(usuarios.password)
+            usuarios.password = passw
+            usuarios.save()
+            return jsonify({"message": "Usuario creado con éxito"})
+    except Exception as error:
+        ##current_app.logger.error(error)
+        return jsonify({"message": "Error interno del servidor"}), 500
 
 
 def generar_hash_sha256(datos):

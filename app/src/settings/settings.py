@@ -22,8 +22,10 @@ class Settings(object):
         self.DB_HOST = os.getenv("DB_HOST")
         self.DB_PASS = os.getenv("DB_PASS")
 
+        ##self.SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL',
+           ##                                      'mssql+pyodbc://SA:bdPassblo12#@172.17.0.2:1433/blockChain?driver=ODBC+Driver+17+for+SQL+Server')
         self.SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL',
-                                                 'mssql+pyodbc://SA:bdPassblo12#@sql1/blockChain?driver=ODBC+Driver+17+for+SQL+Server')
+                                                 'mssql+pyodbc://SA:bdPassblo12#@127.0.0.1/blockChain?driver=ODBC+Driver+17+for+SQL+Server')
         self.SQLALCHEMY_TRACK_MODIFICATIONS = False
         self.DEBUG = eval(os.getenv("API_DEBUG", "False").capitalize())
         self.JWT_SECRET_KEY = os.getenv("SECRET_KEY")

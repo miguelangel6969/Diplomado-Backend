@@ -5,22 +5,34 @@ from src.models.transaccion import TransaccionModel
 from src.models.views.ViTransaccionModel import ViTransaccionModel
 from src.models.transaccion import TransaccionModel
 from src.models.bloque import BloqueModel
+from src.models.UsuariosModel import UsuariosModel
 from src.utils import convert_input_to
 from src.db import db
 from . import routes
-from ..schemas.transaccionScheme import TransaccionSchema
 from src.schemas.ViTransaccionScheme import ViTransaccionSchema
-from ..schemas.BloqueScheme import BloqueSchema
 import hashlib
 
 @routes.route('/transaccion', methods=['POST'])
 @jwt_required
 def Transaccion():
     schema = ViTransaccionSchema(many=True)
-    transacciones = jsonify(schema.dump(ViTransaccionModel.list({})))
     requestData = request.get_json()
+    usuario = UsuariosModel.find_by_key(requestData['origen'])
+    tran = True
+    if usuario:
+        if usuario.saldo is not None:
+            if usuario.saldo < requestData['monto']:
+                tran = False
+        else:
+             tran= False
+    else:
+         tran=False
+    
+    if tran==False:
+         return jsonify({"message":"El monto del usuario no cubre la transacción"}), 400
+    
+    transacciones = jsonify(schema.dump(ViTransaccionModel.list({})))
     hasInicial="000000000000000000000000000000000000000000000000000000000000"
-    print("-->", transacciones.get_json())
     if(len(transacciones.get_json())>0):
         bloque=transacciones.get_json()
         idBloque=bloque[len(bloque) - 1]["idBloque"]
@@ -54,12 +66,13 @@ def Transaccion():
             b.has = nuevoHas
             b.save()        
 
-        return jsonify({"creo funciono":0})
+        return jsonify({"message":"Transacción exitosa"})
     else:
         sql = "EXEC sp_crear_transaccion {},'{}','{}','{}',{};".format(requestData['idBloque'], hasInicial,requestData['origen'],requestData['destino'],requestData['monto'])
+        print("--> ",sql)
         db.session.execute(sql)
         db.session.commit()
-        return jsonify({"no se haga coger fastidio":0})
+        return jsonify({"message":"Transacción exitosa"})
     
 def crearNuevoHash(trans, listTrans):
         m = hashlib.sha256()
