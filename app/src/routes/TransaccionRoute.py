@@ -18,7 +18,9 @@ from sqlalchemy import text
 def Transaccion():
     schema = ViTransaccionSchema(many=True)
     requestData = request.get_json()
-    usuario = UsuariosModel.find_by_key(requestData['origen'])
+    claims = get_jwt_claims()
+    user = claims['idUsuario']
+    usuario = UsuariosModel.find_by_id(user)
     tran = True
     if usuario:
         if usuario.saldo is not None:
@@ -47,7 +49,7 @@ def Transaccion():
              idBloque=0
              hasBloque=hasInicial
         
-        sql = "EXEC sp_crear_transaccion {},'{}','{}','{}',{};".format(idBloque, hasBloque,requestData['origen'],requestData['destino'],requestData['monto'])
+        sql = "EXEC sp_crear_transaccion {},'{}','{}','{}',{};".format(idBloque, hasBloque,usuario.user_key,requestData['destino'],requestData['monto'])
         db.session.execute(sql)
         db.session.commit()
 
@@ -69,7 +71,7 @@ def Transaccion():
 
         return jsonify({"message":"Transacción exitosa"})
     else:
-        sql = "EXEC sp_crear_transaccion {},'{}','{}','{}',{};".format(requestData['idBloque'], hasInicial,requestData['origen'],requestData['destino'],requestData['monto'])
+        sql = "EXEC sp_crear_transaccion {},'{}','{}','{}',{};".format(requestData['idBloque'], hasInicial,usuario.user_key,requestData['destino'],requestData['monto'])
         print("--> ",sql)
         db.session.execute(sql)
         db.session.commit()
