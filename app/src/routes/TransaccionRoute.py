@@ -11,6 +11,7 @@ from src.db import db
 from . import routes
 from src.schemas.ViTransaccionScheme import ViTransaccionSchema
 import hashlib
+from sqlalchemy import text
 
 @routes.route('/transaccion', methods=['POST'])
 @jwt_required
@@ -73,6 +74,47 @@ def Transaccion():
         db.session.execute(sql)
         db.session.commit()
         return jsonify({"message":"Transacción exitosa"})
+    
+@routes.route('/transaccion/historial', methods=['GET'])
+@jwt_required
+def Historial():
+     
+     claims = get_jwt_claims()
+     user = claims['idUsuario']
+
+     usuario = UsuariosModel.find_by_id(user)
+
+     if usuario:
+        print("--> ",usuario.user_key)
+        sql = text(
+            "SELECT T1.id_transaccion, T1.id_bloque, U3.nombres AS nombre_origen, T1.fecha, U2.nombres AS nombre_destino, T1.monto, 'Saliente' as tipo "
+            "FROM transaccion T1 "
+            "JOIN usuarios U2 ON T1.destino = U2.user_key "
+            "JOIN usuarios U3 ON T1.origen = U3.user_key "
+            "WHERE T1.origen = :origen "
+            "UNION ALL "
+            "SELECT T1.id_transaccion, T1.id_bloque, U3.nombres AS nombre_origen, T1.fecha, U2.nombres AS nombre_destino, T1.monto, 'Entrante' as tipo "
+            "FROM transaccion T1 "
+            "JOIN usuarios U2 ON T1.destino = U2.user_key "
+            "JOIN usuarios U3 ON T1.origen = U3.user_key "
+            "WHERE T1.destino = :destino"
+        )
+
+        print("sql---> ",sql)
+        resultados = db.session.execute(sql, {"origen": usuario.user_key, "destino": usuario.user_key})
+        print("ejecucion-- ",resultados)
+        response = []
+        for fila in resultados:
+             if fila.tipo == 'Entrante':
+                  response.append( { 'monto': fila.monto, "usuario": fila.nombre_origen, "fecha": fila.fecha, "positivo":True } )
+             else:
+                  response.append( { 'monto': fila.monto, "usuario": fila.nombre_destino, "fecha": fila.fecha, "positivo":False } )
+        
+
+        return jsonify(response)
+     else:
+          return jsonify({"message":"No se encontro el usuario"}) , 400
+
     
 def crearNuevoHash(trans, listTrans):
         m = hashlib.sha256()

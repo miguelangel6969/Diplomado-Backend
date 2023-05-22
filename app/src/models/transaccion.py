@@ -10,6 +10,7 @@ class TransaccionModel(db.Model, ModelParent):
     origen = db.Column(db.String)
     destino = db.Column(db.String)
     monto = db.Column(db.Integer)
+    fecha = db.Column(db.Date)
 
     @classmethod
     def find_by_transaccion(cls, _idbloque):
