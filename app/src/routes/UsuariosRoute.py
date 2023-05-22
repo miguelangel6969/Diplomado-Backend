@@ -7,10 +7,10 @@ from ..schemas.UsuariosScheme import UsuariosSchema
 import hashlib
 
 
-@routes.route('/usuarios/list', methods=['POST'])
+@routes.route('/usuarios/list', methods=['GET'])
 def listUsuarios():
     schema = UsuariosSchema(many=True)
-    return jsonify(schema.dump(UsuariosModel.list(request.get_json())))
+    return jsonify(schema.dump(UsuariosModel.list({})))
 
 
 @routes.route('/usuarios/<int:id>', methods=['GET'])
