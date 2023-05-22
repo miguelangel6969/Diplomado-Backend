@@ -1,12 +1,7 @@
-*.env
-
 .DS_Store
-.env
 .flaskenv
 *.pyc
 *.pyo
-env/
-env*
 dist/
 build/
 *.egg
@@ -18,5 +13,3 @@ _mailinglist
 .idea/
 docs/_build/
 .vscode
-
-src/settings/.env
