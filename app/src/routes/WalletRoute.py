@@ -27,7 +27,7 @@ def Saldo():
         requestData = request.get_json()
         e = UsuariosModel.find_by_id(requestData['idUsuario'])
         e.id = requestData['idUsuario']
-        e.saldo = requestData['saldo']
+        e.saldo = e.saldo+requestData['saldo']
         e.save()
         return jsonify({"message": "Saldo editado con exito"})
     except Exception as error:
