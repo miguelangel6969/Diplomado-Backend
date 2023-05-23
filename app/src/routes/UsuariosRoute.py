@@ -1,5 +1,5 @@
 from flask import jsonify, request
-
+from flask_jwt_extended import get_jwt_claims, jwt_required
 from src.models.UsuariosModel import UsuariosModel
 from src.utils import convert_input_to
 from . import routes
@@ -13,10 +13,13 @@ def listUsuarios():
     return jsonify(schema.dump(UsuariosModel.list({})))
 
 
-@routes.route('/usuarios/<int:id>', methods=['GET'])
-def getUsuarios(id: int):
+@routes.route('/usuario/data', methods=['GET'])
+@jwt_required
+def getUsuarios():
     schema = UsuariosSchema()
-    return jsonify(schema.dump(UsuariosModel.find_by_id(id)))
+    claims = get_jwt_claims()
+    user = claims['idUsuario']
+    return jsonify(schema.dump(UsuariosModel.find_by_id(user)))
 
 @routes.route('/usuarios', methods=['POST'])
 @convert_input_to(UsuariosModel)
