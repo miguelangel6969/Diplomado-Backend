@@ -4,15 +4,34 @@ services:
     image: mateofuentes/bd_block:v1
     ports:
       - "1433:1433"
+    networks:
+      - red_block
+
   miback:
     image: mateofuentes/app_back:v1
     ports:
       - "5000:5000"
-    links:
+    networks:
+      - red_block
+    depends_on:
       - midb
+
   mifront:
     image: miguelhernandezdev/mifront:v1
     ports:
       - "4200:4200"
-    links:
+    networks:
+      - red_block
+    depends_on:
       - miback
+
+networks:
+  red_block:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.0.0/24
+          gateway: 172.16.0.1
+          ip_range: 172.16.0.0/24
+

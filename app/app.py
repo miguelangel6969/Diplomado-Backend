@@ -93,4 +93,4 @@ if __name__ == '__main__':
     db.init_app(app=app)
     ma.init_app(app=app)
     docs.init_app(app=app)
-    app.run(port=app.config.get('API_PORT'), debug=app.config.get('API_DEBUG'))
+    app.run(host='0.0.0.0', port=5000)
