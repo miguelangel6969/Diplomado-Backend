@@ -3,8 +3,10 @@ __pycache__
 *.pyc
 
 # Ignorar directorios específicos
-venv/
-.env/
+.DS_Store
+.flaskenv
+*.pyc
+*.pyo
 dist/
 build/
 *.egg
@@ -16,8 +18,6 @@ _mailinglist
 .idea/
 docs/_build/
 .vscode
-
-src/settings/.env
 
 # Ignorar archivos y directorios de desarrollo local
 *.log
