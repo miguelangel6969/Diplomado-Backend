@@ -6,13 +6,13 @@ from . import routes
 from ..schemas.UsuariosScheme import UsuariosSchema
 import hashlib
 
-
+#Obtener todos los usuarios del sistema
 @routes.route('/usuarios/list', methods=['GET'])
 def listUsuarios():
     schema = UsuariosSchema(many=True)
     return jsonify(schema.dump(UsuariosModel.list({})))
 
-
+#obtener data de un usuario especifico
 @routes.route('/usuario/data', methods=['GET'])
 @jwt_required
 def getUsuarios():
@@ -21,12 +21,14 @@ def getUsuarios():
     user = claims['idUsuario']
     return jsonify(schema.dump(UsuariosModel.find_by_id(user)))
 
+#creación usuarios
 @routes.route('/usuarios', methods=['POST'])
 @convert_input_to(UsuariosModel)
 def updateUsuarios(usuarios):
     try:
         email = UsuariosModel.find_by_email(usuarios.email)
         indentification = UsuariosModel.find_by_cedula(usuarios.cedula)
+        #se valida que los campos unicos no existan ya en la base de datos
         if email and indentification:
             return jsonify({"message":"Correo y cedula existentes"}), 400
         elif email:
@@ -48,7 +50,7 @@ def updateUsuarios(usuarios):
         ##current_app.logger.error(error)
         return jsonify({"message": "Error interno del servidor"}), 500
 
-
+#Se Encripta la contraseña
 def generar_hash_sha256(datos):
     # Crear un objeto hash SHA-256
     sha256_hash = hashlib.sha256()

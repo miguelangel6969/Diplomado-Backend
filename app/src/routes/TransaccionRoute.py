@@ -13,39 +13,40 @@ from src.schemas.ViTransaccionScheme import ViTransaccionSchema
 import hashlib
 from sqlalchemy import text
 
+#Realizar transacción en bloque
 @routes.route('/transaccion', methods=['POST'])
 @jwt_required
 def Transaccion():
-    schema = ViTransaccionSchema(many=True)
-    requestData = request.get_json()
-    claims = get_jwt_claims()
-    user = claims['idUsuario']
-    usuario = UsuariosModel.find_by_id(user)
+    schema = ViTransaccionSchema(many=True) #Se obtienen el esquema de la tabla transacción
+    requestData = request.get_json() # se recupera la data enviada en el cuerpo de la petición
+    claims = get_jwt_claims() # se guardan los claims (variables del token)
+    user = claims['idUsuario'] # se recupera el id del usuario por el claim
+    usuario = UsuariosModel.find_by_id(user) # se busca la información del usuario
     tran = True
-    if usuario:
-        if usuario.saldo is not None:
-            if usuario.saldo < requestData['monto']:
+    if usuario: # si el usuario existe
+        if usuario.saldo is not None: # se valida que tenga saldo
+            if usuario.saldo < requestData['monto']: # se valida que el saldo de la transacción no supere el saldo
                 tran = False
         else:
              tran= False
     else:
          tran=False
     
-    if tran==False:
+    if tran==False: # se la variable llega en false, no se puede hacer la transacción
          return jsonify({"message":"El monto del usuario no cubre la transacción"}), 400
     
-    transacciones = jsonify(schema.dump(ViTransaccionModel.list({})))
-    hasInicial="000000000000000000000000000000000000000000000000000000000000"
-    if(len(transacciones.get_json())>0):
-        bloque=transacciones.get_json()
-        idBloque=bloque[len(bloque) - 1]["idBloque"]
+    transacciones = jsonify(schema.dump(ViTransaccionModel.list({}))) # Se obtienen las transacciones
+    hasInicial="000000000000000000000000000000000000000000000000000000000000" # HASH Inicial
+    if(len(transacciones.get_json())>0): 
+        bloque=transacciones.get_json() #Se convierte en json las transacciones obtenidodas
+        idBloque=bloque[len(bloque) - 1]["idBloque"] # se obtiene la ultima posición para obtener el ultimo bloque
         contBloq = 0
         hasBloque=''
         for i in bloque:
             if i["idBloque"]==idBloque:
-                contBloq+=1
+                contBloq+=1 #contador de cuantas veces se encuentra el bloque seleccionado
 
-        if contBloq>2:
+        if contBloq>2: 
              idBloque=0
              hasBloque=hasInicial
         
@@ -61,13 +62,15 @@ def Transaccion():
 
             if i["idBloque"]==idBloque:
                 count+=1
+         # si el bloque se encuentra dos veces significa que va a hacer su tercera transacción
+        # así que se debe cerrar el bloque
         if count>=2:
             transaccion = TransaccionModel.find_by_transaccion(idBloque)
-            nuevoHas=crearNuevoHash(transaccion,listTran)
+            nuevoHas=crearNuevoHash(transaccion,listTran) # se recupera nuevo hash
             b = BloqueModel.find_by_id(idBloque)
             b.id = idBloque
             b.has = nuevoHas
-            b.save()        
+            b.save() # se actualiza el bloque     
 
         return jsonify({"message":"Transacción exitosa"})
     else:
@@ -76,18 +79,18 @@ def Transaccion():
         db.session.execute(sql)
         db.session.commit()
         return jsonify({"message":"Transacción exitosa"})
-    
+
+#Obtener historial transacciones realizadas por un usuario
 @routes.route('/transaccion/historial', methods=['GET'])
 @jwt_required
 def Historial():
      
-     claims = get_jwt_claims()
-     user = claims['idUsuario']
+     claims = get_jwt_claims() #se recuperan variables del token
+     user = claims['idUsuario'] # se obtiene el id del usuario
 
-     usuario = UsuariosModel.find_by_id(user)
+     usuario = UsuariosModel.find_by_id(user) # se obtiene la data del usuario
 
      if usuario:
-        print("--> ",usuario.user_key)
         sql = text(
             "SELECT T1.id_transaccion, T1.id_bloque, U3.nombres AS nombre_origen, T1.fecha, U2.nombres AS nombre_destino, T1.monto, 'Saliente' as tipo "
             "FROM transaccion T1 "
@@ -102,9 +105,7 @@ def Historial():
             "WHERE T1.destino = :destino"
         )
 
-        print("sql---> ",sql)
         resultados = db.session.execute(sql, {"origen": usuario.user_key, "destino": usuario.user_key})
-        print("ejecucion-- ",resultados)
         response = []
         for fila in resultados:
              if fila.tipo == 'Entrante':
@@ -120,9 +121,9 @@ def Historial():
     
 def crearNuevoHash(trans, listTrans):
         m = hashlib.sha256()
-        m.update(repr(trans).encode())
-        hashInvalido = m.hexdigest()
-        hashValido = comprobarHash(hashInvalido, listTrans)
+        m.update(repr(trans).encode()) #se vuelve string los bloques
+        hashInvalido = m.hexdigest() #se valida que el hash sea valido
+        hashValido = comprobarHash(hashInvalido, listTrans) # se hace prueba de trabajo
         return hashValido
 
 def comprobarHash(hashInvalido, listTrans):
@@ -131,19 +132,23 @@ def comprobarHash(hashInvalido, listTrans):
         aceptado = False
         
         while aceptado == False:
-            while invalido[0:4] != "0000":
-                invalido = modHash(invalido, valor)
-                valor += 1
+            while invalido[0:4] != "0000": # El hash debe tener sus primeros 4 caracteres en 0
+                invalido = modHash(invalido, valor) #se genera hash
+                valor += 1 #se aumenta auxiliar
             
-            if len(listTrans) == 1:
+            #si las transacciones tienen una significa que el hash es el primero entonces 
+            #no se reliza comparaciones
+            if len(listTrans) == 1: 
                 aceptado = True
             else:
                 nuevoV = True
                 for codigo in listTrans:
+                    #Si el hash ya existe se genera otro de lo contrario se retorna
                     if invalido[0:4] == "0000" and codigo == invalido:
                         nuevoV = False
                         invalido = modHash(invalido, valor)
                         valor += 1
+                    #el hash si o si debe tener sus 4 caracteres en 0
                     elif invalido[0:4] != "0000":
                         nuevoV = False
 
@@ -152,6 +157,7 @@ def comprobarHash(hashInvalido, listTrans):
 
         return invalido
 
+#se genera hash concatenando el auxiliar para que siempre genere un hash nuevo
 def modHash(invalido, valor):
         m = hashlib.sha256()
         hashNuevo = invalido + str(valor)

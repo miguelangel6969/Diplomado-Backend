@@ -29,7 +29,7 @@ CORS(app)
 api = Api(app=app)
 jwt = JWTManager(app=app)
 
-
+#Token expirado
 @jwt.expired_token_loader
 def custom_expired_token_loader_callback():
     return jsonify({'message': 'Tu sesion ha caducado'}), 401
@@ -47,21 +47,24 @@ def custom_user_loader_error(identity):
 def hello_world():
     return 'Api is running'
 
-
+#Autenticación
 @app.route('/auth', methods=['POST'])
 def login():
     user_json = request.get_json()
     try:
+        #Se valida el correo y la contraseña
         user = authenticate_user(user_json['email'], user_json['password'])
         email = user.email
+        #se crea token
         access_token = create_access_token(email)
+        #se crea llave para refrescar token
         refresh_token = create_refresh_token(user.email)
         return jsonify({"access_token": access_token, "refresh_token": refresh_token})
     except Exception as e:
         ##app.logger.error(e)
         return jsonify({"message": "El usuario no existe."}), 404
 
-
+#Se guardan variables en el token
 @jwt.user_claims_loader
 def add_claims_to_access_token(identity):
     return {
@@ -86,6 +89,7 @@ def get_additional_data_user():
     claims = get_jwt_claims()
     return jsonify(claims), 200
 
+#Se registran las rutas que contenga el objeto blueprint
 app.register_blueprint(routes)
 
 if __name__ == '__main__':

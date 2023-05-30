@@ -6,6 +6,7 @@ from src.utils import convert_input_to
 from . import routes
 from ..schemas.UsuariosScheme import UsuariosModel
 
+#Obtener saldo al usuario que se encuentra en sesión
 @routes.route('/wallet/saldo', methods=['GET'])
 @jwt_required
 def GetSaldo():
@@ -20,6 +21,7 @@ def GetSaldo():
         ##current_app.logger.error(error)
         return jsonify({"message": "Error interno del servidor"}), 500
 
+#Dar saldo a un usuario
 @routes.route('/wallet/saldo', methods=['POST'])
 @jwt_required
 def Saldo():

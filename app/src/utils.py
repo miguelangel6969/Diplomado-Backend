@@ -1,6 +1,6 @@
 from flask import request
 
-
+#convertie los datos de entrada en una instancia de una clase específica
 def convert_input_to(class_):
     def wrap(f):
         def dec(*args):

@@ -9,7 +9,7 @@ class Settings(object):
 
     def __init__(self):
         load_dotenv()
-        minutes = int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 15))
+        minutes = int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 15)) #Tiempo de expiración token
         self.JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(minutes=minutes)
 
         self.FLASK_ENV = os.getenv('FLASK_ENV')
