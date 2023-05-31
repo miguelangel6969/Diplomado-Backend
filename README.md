@@ -4,6 +4,9 @@ Api Block Chain
 
 Proyecto desarrollado para lograr desarrollar una aplicación con una arquitectura de aplicación distribuida o arquitectura de microservicios. Donde este corresponde al backend. Con el objetivo de generar transacción y poder ver los registros correspondientes.
 
+# Documentación proyecto
+La documentación del proyecto en general la puedes encontrar en: [documentación](https://github.com/mninoquitian/Proyecto-Diplomado/tree/master/Documentacion)
+
 # Requisitos previos
 
 Para poder compilar localmente este proyecto debes tener previamente instalado python.
