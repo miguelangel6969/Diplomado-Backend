@@ -35,9 +35,9 @@ Esto instalara todas las librerias las cuales necesita la aplicación. Si no se 
 
 # Despliegue mediante Docker
 
-- Ubiquese en la ruta `/app:`
+- Ubiquese en la ruta `/app`
 - Verifique su conexión a internet
-- Verifique tener instalado docker en tu maquina. En caso de se debera instalar
+- Verifique tener instalado docker en Su maquina. En caso de se debera instalar
 - corra el siguiente comando `docker compose up` esto se encargara de bajar las imagenes requeridas y de crear una red para estas. Una vez haya creado los debidos contenedores de las imagenes pondra a correr estos mismos y podra interactuar con la app.
 
 
