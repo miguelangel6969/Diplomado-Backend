@@ -33,6 +33,15 @@ Esto instalara todas las librerias las cuales necesita la aplicación. Si no se 
   - `../settings:`  se definen varios atributos de la clase que representan diferentes variables de entorno obtenidas del archivo .env. Estas variables de entorno incluyen configuraciones relacionadas con tokens JWT, configuraciones de base de datos, configuraciones de SQLAlchemy, modo de depuración, clave secreta JWT y otros
   - `db.py:` Se utiliza posteriormente para interactuar con la base de datos, realizar consultas y manipular objetos de modelo.
 
+# Despliegue mediante Docker
+
+- Ubiquese en la ruta `db.py:`
+- Verifique su conexión a internet
+- Verifique tener instalado docker en tu maquina. En caso de se debera instalar
+- corra el siguiente comando `docker compose up` esto se encargara de bajar las imagenes requeridas y de crear una red para estas. Una vez haya creado los debidos contenedores de las imagenes pondra a correr estos mismos y podra interactuar con la app.
+
+
+
 
 
 
